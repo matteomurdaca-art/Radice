@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Pannello vivaio · Radice</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,500;0,7..72,650;1,7..72,450&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+</head>
+<body class="pannello">
+  <header class="topbar">
+    <div class="wordmark"><b>Radice</b><span>pannello vivaio</span></div>
+    <div id="utente" class="small muted"></div>
+  </header>
+  <main class="vivaio" id="main">
+    <div class="status"><span class="spinner"></span>Caricamento…</div>
+  </main>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <script>
+    // Se dopo 8 secondi l'app non è partita, mostra cosa controllare invece di restare su "Caricamento…"
+    setTimeout(function () {
+      if (window.__radiceAvviata) return;
+      document.body.innerHTML = '<div style="font:16px/1.5 system-ui,sans-serif;max-width:560px;margin:40px auto;padding:0 16px;color:#18231D">'
+        + '<h1 style="font-size:22px">L\'app non si è avviata</h1>'
+        + '<p>Controlla che nel repository ci siano tutti i file, nella stessa cartella: index.html, vivaio.html, app.js, vivaio.js, db.js, config.js, costanti.js, luna.js, ui.js, immagine.js, styles.css, libreria-supabase.js, libreria-qrcode.js.</p>'
+        + '<p>Se ci sono tutti, controlla la connessione e ricarica la pagina.</p></div>';
+    }, 8000);
+  </script>
+  <script type="module" src="./vivaio.js"></script>
+</body>
+</html>
