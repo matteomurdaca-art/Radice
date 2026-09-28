@@ -1,0 +1,16 @@
+{
+  "name": "Radice · Pannello vivaio",
+  "short_name": "Radice Vivaio",
+  "description": "Il pannello del vivaio: marchio, promemoria ai clienti, statistiche, cartellini QR.",
+  "id": "./vivaio.html",
+  "start_url": "./vivaio.html",
+  "scope": "./",
+  "display": "standalone",
+  "lang": "it",
+  "background_color": "#E9EDE5",
+  "theme_color": "#18231D",
+  "icons": [
+    { "src": "icona-vivaio-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icona-vivaio-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

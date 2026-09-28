@@ -1,0 +1,18 @@
+{
+  "name": "Radice",
+  "short_name": "Radice",
+  "description": "La scheda di cura delle tue piante, offerta dal tuo vivaio.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "it",
+  "background_color": "#F4F6F1",
+  "theme_color": "#1E6B52",
+  "icons": [
+    { "src": "icona-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icona-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
