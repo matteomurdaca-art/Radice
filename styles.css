@@ -248,3 +248,8 @@ a.btn{text-decoration:none}
   .qrtag{break-inside:avoid;border-color:#999}
   .qrtag button{display:none}
 }
+.scelte-foto{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.scelte-foto label{position:relative;cursor:pointer;font-size:14px;padding:11px 10px}
+.scelte-foto svg{width:18px;height:18px;color:inherit}
+.scelte-foto input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+@media (max-width:360px){.scelte-foto{grid-template-columns:1fr}}

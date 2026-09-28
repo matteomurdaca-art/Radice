@@ -11,7 +11,7 @@ const state = {
   tab: 'home', scanMode: 'recog', filter: 'tutte', query: '', calOffset: 0,
   zona: leggiLocale('radice_zona') || 'nord',
   photoFile: null, photoURL: '', desc: '', busy: false, scanStatus: '', scanError: '', diag: null,
-  genBusy: false, genError: '', confirmDel: null, contactOpen: false,
+  genBusy: false, genError: '', iaStato: null, confirmDel: null, contactOpen: false,
 };
 let sheetData = null;
 
@@ -174,11 +174,13 @@ function scrScan() {
     <div class="modes" role="group" aria-label="Cosa vuoi fare">
       <button data-act="mode" data-mode="recog" aria-pressed="${m === 'recog'}">Riconosci la pianta</button>
       <button data-act="mode" data-mode="diag" aria-pressed="${m === 'diag'}">C'è un problema?</button></div>
-    <label class="drop ${state.photoURL ? 'has' : ''}" id="drop" for="photo">
-      <input type="file" id="photo" accept="image/*" capture="environment">
-      ${state.photoURL ? `<img src="${state.photoURL}" alt="Foto scelta">`
-        : `<span style="display:grid;gap:8px;justify-items:center">${ICON.cam}<b>Scatta o scegli una foto</b><span class="small muted">${m === 'diag' ? 'Inquadra da vicino la parte malata: foglie, macchie, insetti' : 'Inquadra foglie e fiori, con luce naturale'}</span></span>`}
-    </label>
+    ${state.photoURL
+      ? `<div class="drop has" id="drop"><img src="${state.photoURL}" alt="Foto scelta"></div>`
+      : `<div class="drop" id="drop"><span style="display:grid;gap:12px;justify-items:center;width:100%">${ICON.cam}<span class="small muted">${m === 'diag' ? 'Inquadra da vicino la parte malata: foglie, macchie, insetti' : 'Inquadra foglie e fiori, con luce naturale'}</span>
+        <span class="scelte-foto">
+          <label class="btn" for="photo">${ICON.cam} Scatta una foto<input type="file" id="photo" accept="image/*" capture="environment"></label>
+          <label class="btn quiet" for="galleria"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 16l-5-5-8 8.5"/></svg> Scegli dalla galleria<input type="file" id="galleria" accept="image/*"></label>
+        </span></span></div>`}
     ${state.photoURL ? '<button class="linkbtn" data-act="clearphoto" style="justify-self:start">Cambia foto</button>' : ''}
     ${m === 'diag' ? `<label class="field" for="desc">Cosa hai notato? (facoltativo)<textarea id="desc" maxlength="600" placeholder="Es. da una settimana le foglie in basso ingialliscono">${esc(state.desc)}</textarea></label>` : ''}
     ${state.busy ? `<div class="status"><span class="spinner"></span><span>${esc(state.scanStatus)}</span></div>`
@@ -186,6 +188,7 @@ function scrScan() {
     ${state.scanError ? `<div class="notice err">${esc(state.scanError)}</div>` : ''}
     ${m === 'diag' && state.diag ? diagHtml(state.diag) : ''}
     <p class="small muted">Hai il cartellino del vivaio? Inquadra il QR con la fotocamera del telefono: la scheda si apre da sola.</p>
+    <div style="display:grid;gap:8px"><button class="linkbtn" style="justify-self:start" data-act="statoia">Controlla il servizio IA</button>${state.iaStato ? `<div class="notice ${state.iaStato.ok ? '' : 'err'}">${state.iaStato.html}</div>` : ''}</div>
   </div>`;
 }
 
@@ -357,6 +360,24 @@ async function analyze() {
   }
 }
 
+async function controllaIA() {
+  state.iaStato = { ok: true, html: 'Controllo in corso…' }; renderScreen();
+  try {
+    const r = await chiamaIA({ tipo: 'stato' }, 20000);
+    const st = r && r.stato;
+    if (!st) {
+      state.iaStato = { ok: false, html: 'Sul server c\'è ancora la versione vecchia della funzione "analizza": incolla il file nuovo nell\'editor della funzione e tocca Deploy.' };
+    } else {
+      const chiavi = [st.gemini ? 'GEMINI_API_KEY presente' : 'GEMINI_API_KEY assente', st.anthropic ? 'ANTHROPIC_API_KEY presente' : 'ANTHROPIC_API_KEY assente'].join(' · ');
+      state.iaStato = { ok: st.fornitore !== 'nessuno', html: `<b>Funzione ${esc(st.versione)}</b><br>IA in uso: <b>${esc(st.fornitore)}</b><br>${esc(chiavi)}` };
+    }
+  } catch (e) {
+    const vecchia = /manca la chiave API sul server\.$/.test(e.message);
+    state.iaStato = { ok: false, html: vecchia ? 'Sul server c\'è ancora la versione vecchia della funzione "analizza": incolla il file nuovo nell\'editor della funzione e tocca Deploy.' : esc(e.message) };
+  }
+  renderScreen();
+}
+
 async function generate() {
   const q = state.query.trim().slice(0, 80);
   if (!q || state.genBusy) return;
@@ -401,6 +422,7 @@ document.addEventListener('click', async e => {
     case 'mode': state.scanMode = b.dataset.mode; state.scanError = ''; renderScreen(); break;
     case 'clearphoto': if (state.photoURL) URL.revokeObjectURL(state.photoURL); state.photoFile = null; state.photoURL = ''; state.diag = null; state.scanError = ''; renderScreen(); break;
     case 'analyze': analyze(); break;
+    case 'statoia': controllaIA(); break;
     case 'open': { const p = byId(b.dataset.id); evento('apertura_scheda', p?.id); openScheda(p, { verified: true }); break; }
     case 'openmine': { const m = state.mine.find(x => x.id === b.dataset.id); if (m) openScheda(plantOf(m), { verified: !!m.pianta_id }); break; }
     case 'close': closeSheet(); break;
@@ -451,7 +473,7 @@ document.addEventListener('change', async e => {
     document.querySelectorAll(`input[data-act="done"][data-mia="${mia}"][data-mese="${mese}"][data-i="${i}"]`).forEach(x => { x.checked = t.checked; x.closest('.task')?.classList.toggle('done', t.checked); });
     return;
   }
-  if (t.id === 'photo') { setPhoto(t.files && t.files[0]); return; }
+  if (t.id === 'photo' || t.id === 'galleria') { setPhoto(t.files && t.files[0]); return; }
   if (t.id === 'zona') { state.zona = t.value; scriviLocale('radice_zona', t.value); renderScreen(); }
 });
 document.addEventListener('input', e => {
