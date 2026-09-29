@@ -1,0 +1,54 @@
+Copyright (c) 2026 Matteo Murdaca. Tutti i diritti riservati.
+
+Il codice, la grafica, il nome, il logo, i testi e le schede contenuti in questo
+repository sono di proprietà esclusiva dell'autore.
+
+Non è concesso, senza il consenso scritto dell'autore:
+- copiare, modificare o distribuire il software, in tutto o in parte;
+- usarlo per offrire servizi a terzi, anche gratuitamente;
+- rivenderlo, concederlo in licenza o integrarlo in altri prodotti;
+- usare il nome e il logo dell'app.
+
+La pubblicazione del codice su GitHub e il suo funzionamento come pagina web
+servono solo al funzionamento dell'app e non concedono alcuna licenza d'uso.
+
+Le librerie di terze parti incluse (libreria-supabase.js, libreria-qrcode.js)
+restano soggette alle rispettive licenze originali.
+
+Per richieste di licenza o collaborazione: matteo.murdaca@gmail.com
+
+---
+
+Copyright (c) 2026 Matteo Murdaca. All rights reserved.
+No permission is granted to use, copy, modify, distribute or sublicense this
+software, its name or its logo without the author's prior written consent.
+Third-party libraries included remain under their own licenses.
+
+---
+
+LICENZE DELLE LIBRERIE DI TERZE PARTI / THIRD-PARTY LICENSES
+
+libreria-supabase.js contiene supabase-js e i suoi moduli (auth-js, postgrest-js,
+functions-js, realtime-js, storage-js), licenza MIT, Copyright (c) 2020 Supabase.
+
+libreria-qrcode.js contiene node-qrcode, licenza MIT, Copyright (c) 2012 Ryan Day.
+
+Testo della licenza MIT, valido per entrambe:
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
