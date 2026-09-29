@@ -2,7 +2,7 @@
   --bg:#E9EDE5; --app:#F4F6F1; --surface:#FFFFFF; --surface-2:#EEF2EA; --ink:#18231D; --muted:#56645B; --line:#D3DBCD;
   --accent:#1E6B52; --accent-soft:#DCEBE3; --on-accent:#FFFFFF; --pollen:#D9A92B; --moon-dark:#C9D1C6; --moon-lit:#F2E3A6;
   --brand:#1E6B52;
-  --t-potatura:#7D4F95; --t-concime:#2E7D5B; --t-semina:#A86E12; --t-irrigazione:#2A67A8; --t-protezione:#58697A; --t-raccolta:#B4492A; --t-trattamento:#7A6A1A;
+  --t-potatura:#7D4F95; --t-concime:#2E7D5B; --t-semina:#A86E12; --t-irrigazione:#2A67A8; --t-protezione:#58697A; --t-raccolta:#B4492A; --t-trattamento:#7A6A1A; --petal:#C24D6D; --petal-soft:#F9E3E9;
   --good:#2E7D4F; --warn:#A8690C; --crit:#B3372B;
   --shadow:0 1px 2px rgba(24,35,29,.06),0 12px 40px rgba(24,35,29,.10);
   --f-display:"Literata",Georgia,"Times New Roman",serif;
@@ -14,7 +14,7 @@
     color-scheme:dark;
     --bg:#0F1512; --app:#141B17; --surface:#1B241F; --surface-2:#222D27; --ink:#E4EBE5; --muted:#9FAEA4; --line:#2F3C35;
     --accent:#62C09A; --accent-soft:#1F3A2F; --on-accent:#0D1511; --pollen:#E7C35A; --moon-dark:#34403A; --moon-lit:#F0E2A8;
-    --t-potatura:#C39BDA; --t-concime:#6CCB9A; --t-semina:#E0A64A; --t-irrigazione:#7FB3EC; --t-protezione:#A4B4C4; --t-raccolta:#EE8D6E; --t-trattamento:#CDBB5E;
+    --t-potatura:#C39BDA; --t-concime:#6CCB9A; --t-semina:#E0A64A; --t-irrigazione:#7FB3EC; --t-protezione:#A4B4C4; --t-raccolta:#EE8D6E; --t-trattamento:#CDBB5E; --petal:#F08BA4; --petal-soft:#3A2229;
     --good:#6CCB8E; --warn:#E6A94A; --crit:#EE8074;
     --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 40px rgba(0,0,0,.35);
   }
@@ -23,7 +23,7 @@
   color-scheme:dark;
   --bg:#0F1512; --app:#141B17; --surface:#1B241F; --surface-2:#222D27; --ink:#E4EBE5; --muted:#9FAEA4; --line:#2F3C35;
   --accent:#62C09A; --accent-soft:#1F3A2F; --on-accent:#0D1511; --pollen:#E7C35A; --moon-dark:#34403A; --moon-lit:#F0E2A8;
-  --t-potatura:#C39BDA; --t-concime:#6CCB9A; --t-semina:#E0A64A; --t-irrigazione:#7FB3EC; --t-protezione:#A4B4C4; --t-raccolta:#EE8D6E; --t-trattamento:#CDBB5E;
+  --t-potatura:#C39BDA; --t-concime:#6CCB9A; --t-semina:#E0A64A; --t-irrigazione:#7FB3EC; --t-protezione:#A4B4C4; --t-raccolta:#EE8D6E; --t-trattamento:#CDBB5E; --petal:#F08BA4; --petal-soft:#3A2229;
   --good:#6CCB8E; --warn:#E6A94A; --crit:#EE8074;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 40px rgba(0,0,0,.35);
 }
@@ -253,3 +253,36 @@ a.btn{text-decoration:none}
 .scelte-foto svg{width:18px;height:18px;color:inherit}
 .scelte-foto input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 @media (max-width:360px){.scelte-foto{grid-template-columns:1fr}}
+
+/* animali */
+.modes.tre{grid-template-columns:1fr 1fr 1.3fr}
+.soggetto{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.soggetto button{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-size:13.5px;font-weight:600;color:var(--muted)}
+.soggetto button svg{width:16px;height:16px}
+.soggetto button[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);background:var(--surface-2)}
+.prow .ini-a{background:var(--petal-soft);color:var(--petal)}
+.tag-a::before{background:linear-gradient(90deg,var(--brand) 0 60%,var(--petal) 60% 100%)}
+.animalcard{display:grid;gap:10px;padding:14px 0}
+.animal-top{display:flex;gap:12px;align-items:center}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--petal-soft);color:var(--petal);display:grid;place-items:center;font-family:var(--f-display);font-weight:650;font-size:19px;flex:none}
+.animalcard .ops{display:flex;gap:6px;flex-wrap:wrap}
+.scorta{display:grid;gap:6px}
+.scorta-top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline}
+.scorta .bar i{background:var(--accent)}
+.scorta.bassa .bar i{background:var(--warn)}
+.scorta.bassa b{color:var(--warn)}
+.riordina{border-color:color-mix(in srgb,var(--warn) 40%,var(--line));display:grid;gap:10px}
+.riordina-riga{display:grid;gap:6px;padding-top:10px;border-top:1px solid var(--line)}
+.riordina-riga:first-of-type{border-top:0;padding-top:0}
+.riordina-azioni{display:flex;gap:8px;flex-wrap:wrap}
+.attenzione{border-color:color-mix(in srgb,var(--crit) 30%,var(--line));background:color-mix(in srgb,var(--crit) 4%,var(--surface))}
+.urgenza{display:grid;gap:4px;border-radius:12px;padding:12px 14px;border:1.5px solid}
+.urgenza b{font-size:17px}
+.u-crit{border-color:var(--crit);background:color-mix(in srgb,var(--crit) 10%,var(--surface));color:var(--crit)}
+.u-warn{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,var(--surface));color:var(--warn)}
+.u-ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 10%,var(--surface));color:var(--good)}
+.urgenza .small{color:var(--ink)}
+fieldset.card{margin:0;min-width:0}
+input[type=date],input[type=number]{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px;min-height:44px}
+@media (max-width:400px){.modes.tre button{font-size:12.5px;padding:8px 4px}}
+.qrtag-a::before{background:var(--petal)}

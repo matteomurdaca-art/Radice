@@ -1,6 +1,6 @@
-# Radice
+# Green Rabbit
 
-App di cura delle piante che i vivai offrono gratis ai propri clienti.
+App di cura di piante e animali che vivai, garden center e negozi per animali offrono gratis ai propri clienti.
 
 - `index.html`: app per i clienti (riconoscimento e diagnosi da foto, schede, le mie piante, calendario, messaggi del vivaio)
 - `vivaio.html`: pannello del vivaio (marchio, promemoria mirati, statistiche, cartellini QR)
@@ -14,23 +14,25 @@ Tutti i file stanno in un'unica cartella e non serve nessuna compilazione: GitHu
 | `index.html`, `vivaio.html` | GitHub | le due pagine |
 | `app.js`, `vivaio.js` | GitHub | logica dell'app e del pannello |
 | `db.js`, `costanti.js`, `luna.js`, `ui.js`, `immagine.js` | GitHub | parti condivise |
-| `styles.css`, `favicon.svg` | GitHub | grafica |
+| `styles.css`, `favicon.svg`, `logo.svg` | GitHub | grafica e marchio |
+| `manifest.webmanifest`, `manifest-vivaio.webmanifest`, `sw.js`, `icona-*.png`, `apple-touch-icon.png` | GitHub | installazione sul telefono come app |
 | `libreria-supabase.js`, `libreria-qrcode.js` | GitHub | librerie già pronte, non modificarle |
 | `config.js` | GitHub | **indirizzo e chiave del tuo Supabase: l'unico file da modificare** |
 | `supabase-schema.sql` | Supabase, SQL Editor | crea tabelle e regole di sicurezza |
 | `supabase-catalogo.sql` | Supabase, SQL Editor | carica le 12 schede verificate |
-| `supabase-funzione-analizza.ts` | Supabase, Edge Functions | analisi delle foto con l'IA |
+| `supabase-animali.sql` | Supabase, SQL Editor | aggiunge gli animali: specie, animali dei clienti, promemoria (una volta, dopo i due file sopra) |
+| `supabase-funzione-analizza.ts` | Supabase, Edge Functions | analisi delle foto con l'IA (piante e animali) |
 
 ## Messa in funzione
 
 ### Supabase
-1. **SQL Editor:** esegui prima `supabase-schema.sql`, poi `supabase-catalogo.sql`.
+1. **SQL Editor:** esegui `supabase-schema.sql`, poi `supabase-catalogo.sql`, poi `supabase-animali.sql`.
 2. **Authentication → Sign In / Providers:** attiva *Allow anonymous sign-ins*.
 3. **Authentication → URL Configuration:**
    - *Site URL*: `https://TUO-UTENTE.github.io/NOME-REPO/`
    - *Redirect URLs*: aggiungi `https://TUO-UTENTE.github.io/NOME-REPO/vivaio.html`
 4. **Edge Functions:** crea una funzione chiamata esattamente `analizza` e incolla il contenuto di `supabase-funzione-analizza.ts`.
-5. **Edge Functions → Secrets:** aggiungi `ANTHROPIC_API_KEY` con la tua chiave da console.anthropic.com.
+5. **Edge Functions → Secrets:** aggiungi `GEMINI_API_KEY` (gratuita, da aistudio.google.com) oppure `ANTHROPIC_API_KEY` (a pagamento, da console.anthropic.com). Ne basta una.
 6. **Project Settings → API:** copia *Project URL* e la chiave *anon* (o *publishable*) dentro `config.js`. Non usare mai la chiave *service_role* o *secret*.
 
 ### GitHub

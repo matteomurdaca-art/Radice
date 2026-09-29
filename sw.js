@@ -1,11 +1,11 @@
 // Service worker di Radice: rende l'app installabile e apribile anche senza rete.
 // Strategia "prima la rete": gli aggiornamenti arrivano subito, la copia salvata serve solo offline.
 // Le chiamate a Supabase e ad altri siti non passano di qui.
-const CACHE = 'radice-v1';
+const CACHE = 'greenrabbit-v1';
 const FILE = [
   './', './index.html', './vivaio.html', './app.js', './vivaio.js', './db.js', './config.js',
   './costanti.js', './luna.js', './ui.js', './immagine.js', './styles.css',
-  './libreria-supabase.js', './libreria-qrcode.js', './favicon.svg', './icona-192.png',
+  './libreria-supabase.js', './libreria-qrcode.js', './favicon.svg', './logo.svg', './icona-192.png',
 ];
 
 self.addEventListener('install', (e) => {
