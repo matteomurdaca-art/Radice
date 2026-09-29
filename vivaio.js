@@ -4,9 +4,11 @@ import { supabase, configurato } from './db.js';
 import { SWATCHES, MESI } from './costanti.js';
 import { $, esc, ICON, toast, applyBrand, brandbar, slugify, copia } from './ui.js';
 
-const state = { user: null, vivaio: null, piante: [], notifiche: [], stats: null, notifPianta: '', notifTesto: '' };
+const state = { user: null, vivaio: null, piante: [], specie: [], animaliAttivi: false, notifiche: [], stats: null, notifPianta: '', notifTesto: '' };
+// notifPianta = '' (tutti) | 'p:<pianta>' | 's:<specie>'
+const bersaglio = t => ({ pianta: t.startsWith('p:') ? t.slice(2) : null, specie: t.startsWith('s:') ? t.slice(2) : null });
 const appUrl = () => new URL('./', location.href).href;
-const linkCliente = (slug, pianta) => `${appUrl()}?v=${encodeURIComponent(slug)}${pianta ? `&p=${encodeURIComponent(pianta)}` : ''}`;
+const linkCliente = (slug, pianta, specie) => `${appUrl()}?v=${encodeURIComponent(slug)}${pianta ? `&p=${encodeURIComponent(pianta)}` : ''}${specie ? `&a=${encodeURIComponent(specie)}` : ''}`;
 const main = () => $('#main');
 
 /* ---------- accesso ---------- */
@@ -43,11 +45,14 @@ async function carica() {
   if (!viv) return mostraCreazione();
   state.vivaio = viv;
   applyBrand(viv.colore);
-  const [{ data: piante }] = await Promise.all([
+  const [{ data: piante }, sp] = await Promise.all([
     supabase.from('piante').select('id,nome,latino,promemoria').or(`vivaio_id.is.null,vivaio_id.eq.${viv.id}`).order('nome'),
+    supabase.from('specie').select('id,nome,latino,promemoria').order('nome'),
     caricaNotifiche(), caricaStats(),
   ]);
   state.piante = piante || [];
+  state.animaliAttivi = !sp.error;
+  state.specie = sp.data || [];
   render();
 }
 async function caricaNotifiche() {
@@ -104,12 +109,12 @@ function render() {
       <section class="panel"><h2>Invia un promemoria ai clienti</h2>
         <p class="small muted">Lo vedono nella Home dell'app. Puoi mandarlo a tutti o solo a chi ha una certa pianta tra le sue.</p>
         <form id="notifica" style="display:grid;gap:12px">
-          <label class="field" for="n-pianta">Destinatari<select id="n-pianta"><option value="">Tutti i clienti</option>${state.piante.map(p => `<option value="${esc(p.id)}" ${state.notifPianta === p.id ? 'selected' : ''}>Chi ha: ${esc(p.nome)}</option>`).join('')}</select></label>
+          <label class="field" for="n-pianta">Destinatari<select id="n-pianta"><option value="">Tutti i clienti</option><optgroup label="Chi ha la pianta">${state.piante.map(p => `<option value="p:${esc(p.id)}" ${state.notifPianta === 'p:' + p.id ? 'selected' : ''}>Chi ha: ${esc(p.nome)}</option>`).join('')}</optgroup>${state.animaliAttivi ? `<optgroup label="Chi ha l'animale">${state.specie.map(x => `<option value="s:${esc(x.id)}" ${state.notifPianta === 's:' + x.id ? 'selected' : ''}>Chi ha: ${esc(x.nome)}</option>`).join('')}</optgroup>` : ''}</select></label>
           <label class="field" for="n-titolo">Titolo<input type="text" id="n-titolo" maxlength="120" required value="${esc(titoloDefault(state.notifPianta))}"></label>
           <label class="field" for="n-testo">Messaggio<textarea id="n-testo" maxlength="500" required>${esc(state.notifTesto)}</textarea></label>
           <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between"><span class="small muted" id="n-count">Calcolo destinatari…</span><button class="btn" type="submit" id="n-btn">Invia promemoria</button></div>
         </form>
-        ${state.notifiche.length ? `<div><p class="eyebrow" style="margin-bottom:4px">Ultimi inviati</p><div class="storico">${state.notifiche.map(n => `<div><b class="small">${esc(n.titolo)}</b><span class="small">${esc(n.testo)}</span><span class="small muted">${new Date(n.created_at).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}${n.pianta_id ? ' · chi ha ' + esc(nomePianta(n.pianta_id)) : ' · tutti'}</span></div>`).join('')}</div></div>` : ''}
+        ${state.notifiche.length ? `<div><p class="eyebrow" style="margin-bottom:4px">Ultimi inviati</p><div class="storico">${state.notifiche.map(n => `<div><b class="small">${esc(n.titolo)}</b><span class="small">${esc(n.testo)}</span><span class="small muted">${new Date(n.created_at).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}${n.pianta_id ? ' · chi ha ' + esc(nomePianta(n.pianta_id)) : n.specie_id ? ' · chi ha ' + esc(nomeSpecie(n.specie_id)) : ' · tutti'}</span></div>`).join('')}</div></div>` : ''}
       </section>
     </div>
     <div class="vcol">
@@ -123,30 +128,43 @@ function render() {
         </div>
         <div class="chartbox"><p class="small muted" style="margin-bottom:4px">Scansioni di cartellini per settimana</p>${grafico(s.settimane || [])}</div>
         ${(s.piante_top || []).length ? `<div><p class="eyebrow" style="margin-bottom:6px">Piante più seguite dai clienti</p><div class="topn">${s.piante_top.map(x => `<div><span>${esc(x.nome)}</span><b class="mono">${x.n}</b></div>`).join('')}</div></div>` : '<p class="small muted">Quando i clienti aggiungono piante, qui vedi le più seguite.</p>'}
-        <p class="small muted">${s.piante_seguite ?? 0} piante seguite · ${s.notifiche ?? 0} promemoria inviati in tutto</p>`
+        ${state.animaliAttivi ? ((s.animali_top || []).length ? `<div><p class="eyebrow" style="margin-bottom:6px">Animali dei clienti</p><div class="topn">${s.animali_top.map(x => `<div><span>${esc(x.nome)}</span><b class="mono">${x.n}</b></div>`).join('')}</div></div>` : '<p class="small muted">Quando i clienti aggiungono i loro animali, qui vedi quali sono.</p>') : ''}
+        <p class="small muted">${s.piante_seguite ?? 0} piante${state.animaliAttivi ? ` e ${s.animali_seguiti ?? 0} animali` : ''} seguiti · ${s.notifiche ?? 0} promemoria inviati in tutto</p>`
         : '<p class="notice">Statistiche non disponibili.</p>'}
       </section>
     </div>
   </div>
-  <section class="panel" id="stampa"><div class="section-title"><h2>Cartellini QR</h2><span class="noprint" style="display:flex;gap:8px;align-items:center"><span class="small muted">${state.piante.length} piante</span><button class="btn quiet" data-act="stampa">Stampa</button></span></div>
-    <p class="small muted noprint">Stampali su carta adesiva e attaccali ai vasi o ai cartellini. Il cliente inquadra il codice con la fotocamera del telefono e apre la scheda con il tuo marchio.</p>
-    <div class="qrgrid">${state.piante.map(p => `<div class="qrtag"><div class="qr" data-qr="${esc(linkCliente(v.slug, p.id))}"></div><b>${esc(p.nome)}</b><span class="latino">${esc(p.latino)}</span><small>${esc(v.nome)}</small><a class="noprint" href="${esc(linkCliente(v.slug, p.id))}" target="_blank" rel="noopener">Prova il link</a></div>`).join('')}</div>
+  <section class="panel" id="stampa"><div class="section-title"><h2>Cartellini QR</h2><span class="noprint" style="display:flex;gap:8px;align-items:center"><span class="small muted">${state.piante.length} piante${state.animaliAttivi ? ` · ${state.specie.length} animali` : ''}</span><button class="btn quiet" data-act="stampa">Stampa</button></span></div>
+    <p class="small muted noprint">Stampali su carta adesiva e attaccali ai vasi, ai cartellini o agli scaffali del reparto animali. Il cliente inquadra il codice con la fotocamera del telefono e apre la scheda con il tuo marchio.</p>
+    <div class="qrgrid">${state.piante.map(p => `<div class="qrtag"><div class="qr" data-qr="${esc(linkCliente(v.slug, p.id))}"></div><b>${esc(p.nome)}</b><span class="latino">${esc(p.latino)}</span><small>${esc(v.nome)}</small><a class="noprint" href="${esc(linkCliente(v.slug, p.id))}" target="_blank" rel="noopener">Prova il link</a></div>`).join('')}${state.animaliAttivi ? state.specie.map(x => `<div class="qrtag qrtag-a"><div class="qr" data-qr="${esc(linkCliente(v.slug, null, x.id))}"></div><b>${esc(x.nome)}</b><span class="latino">${esc(x.latino)}</span><small>${esc(v.nome)}</small><a class="noprint" href="${esc(linkCliente(v.slug, null, x.id))}" target="_blank" rel="noopener">Prova il link</a></div>`).join('') : ''}</div>
   </section>`;
   renderPreview(); disegnaQR(); aggiornaDestinatari();
 }
 
 function nomePianta(id) { return state.piante.find(p => p.id === id)?.nome || id; }
-function titoloDefault(id) { return id ? `${nomePianta(id)}: promemoria del vivaio` : `Novità da ${state.vivaio.nome}`; }
-function testoDefault(id) {
-  if (!id) return 'Passa a trovarci: questa settimana abbiamo novità per il tuo giardino.';
-  const p = state.piante.find(x => x.id === id), mo = new Date().getMonth() + 1;
-  const t = (p?.promemoria || []).find(x => (x.mesi || []).includes(mo));
-  return t ? `${p.nome}, cosa fare a ${MESI[mo - 1]}: ${t.testo.charAt(0).toLowerCase() + t.testo.slice(1)}. Passa in vivaio, ti consigliamo il prodotto giusto.`
-    : `${p?.nome}: controlla la tua pianta e scrivici se hai dubbi. Ti aspettiamo in vivaio.`;
+function nomeSpecie(id) { return state.specie.find(p => p.id === id)?.nome || id; }
+function titoloDefault(t) {
+  const b = bersaglio(t || '');
+  if (b.pianta) return `${nomePianta(b.pianta)}: promemoria del vivaio`;
+  if (b.specie) return `${nomeSpecie(b.specie)}: promemoria del negozio`;
+  return `Novità da ${state.vivaio.nome}`;
+}
+function testoDefault(t) {
+  const b = bersaglio(t || ''), mo = new Date().getMonth() + 1;
+  if (!b.pianta && !b.specie) return 'Passa a trovarci: questa settimana abbiamo novità per il tuo giardino e i tuoi animali.';
+  const x = b.pianta ? state.piante.find(p => p.id === b.pianta) : state.specie.find(p => p.id === b.specie);
+  const r = (x?.promemoria || []).find(y => (y.mesi || []).includes(mo));
+  if (b.specie) return r ? `${x.nome}, cosa fare a ${MESI[mo - 1]}: ${r.testo.charAt(0).toLowerCase() + r.testo.slice(1)}. Passa in negozio: ti aiutiamo a scegliere il prodotto giusto.`
+    : `${x?.nome}: hai tutto quello che serve? Passa in negozio, ti aspettiamo.`;
+  return r ? `${x.nome}, cosa fare a ${MESI[mo - 1]}: ${r.testo.charAt(0).toLowerCase() + r.testo.slice(1)}. Passa in vivaio, ti consigliamo il prodotto giusto.`
+    : `${x?.nome}: controlla la tua pianta e scrivici se hai dubbi. Ti aspettiamo in vivaio.`;
 }
 async function aggiornaDestinatari() {
   const el = $('#n-count'); if (!el) return;
-  const { data, error } = await supabase.rpc('conta_destinatari', { p_vivaio: state.vivaio.id, p_pianta: state.notifPianta || null });
+  const b = bersaglio(state.notifPianta);
+  const arg = { p_vivaio: state.vivaio.id, p_pianta: b.pianta };
+  if (state.animaliAttivi) arg.p_specie = b.specie;
+  const { data, error } = await supabase.rpc('conta_destinatari', arg);
   el.innerHTML = error ? 'Destinatari non calcolabili' : `Destinatari: <b class="mono">${data}</b> ${data === 1 ? 'cliente' : 'clienti'}`;
 }
 
@@ -220,7 +238,10 @@ document.addEventListener('submit', async e => {
     const titolo = $('#n-titolo').value.trim(), testo = $('#n-testo').value.trim();
     if (titolo.length < 2 || testo.length < 2) { toast('Scrivi titolo e messaggio'); return; }
     $('#n-btn').disabled = true;
-    const { error } = await supabase.from('notifiche').insert({ vivaio_id: state.vivaio.id, pianta_id: state.notifPianta || null, titolo, testo });
+    const b = bersaglio(state.notifPianta);
+    const riga = { vivaio_id: state.vivaio.id, pianta_id: b.pianta, titolo, testo };
+    if (b.specie) riga.specie_id = b.specie;
+    const { error } = await supabase.from('notifiche').insert(riga);
     $('#n-btn').disabled = false;
     if (error) { toast('Invio non riuscito: ' + error.message); return; }
     toast('Promemoria inviato');
